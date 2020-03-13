@@ -77,8 +77,18 @@
           <el-table :data="onlyTableData" border stripe>
             <el-table-column type="expand">
               <template slot-scope="scope">
-                <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable>{{ item }}</el-tag>
-              </template>
+                <el-tag v-for="(item, i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i, scope.row)">{{ item }}</el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                ></el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
+              </template>export http_proxy="http://127.0.0.1:8001"; export HTTP_PROXY="http://127.0.0.1:8001"; export https_proxy="http://127.0.0.1:8001"; export HTTPS_PROXY="http://127.0.0.1:8001"
             </el-table-column>
             <el-table-column type="index"></el-table-column>
             <el-table-column label="属性名称" prop="attr_name"></el-table-column>
@@ -191,6 +201,9 @@ export default {
     async getParamsData() {
       if (this.selectedCateKeys.length !== 3) {
         this.selectedCateKeys = []
+        this.manyTableData = []
+        this.onlyTableData = []
+        return
       }
       const { data: res } = await this.$http.get(
         `categories/${this.cateId}/attributes/`,
